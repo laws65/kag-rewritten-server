@@ -16,6 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Kag Rewritten - Server"
+run/main_scene="res://src/Server.tscn"
 config/icon="res://project_icon.png"
 
 [rendering]
