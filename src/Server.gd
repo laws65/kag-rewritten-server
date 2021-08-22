@@ -5,13 +5,30 @@ var port = 28574
 var max_players = 20
 var player_state_collection = {}
 
-var map = []
+var map_data = []
+
+export (String, FILE, "*.png") var current_map
+
+var player_data = {}
+enum Teams {
+	BLUE,
+	RED,
+}
+
+enum GameClasses {
+	KNIGHT,
+	ARCHER,
+}
+
+var spawnpoints = {
+	Teams.BLUE: Vector2.ZERO,
+	Teams.RED: Vector2.ZERO,
+}
+
+
 func _ready() -> void:
 	start_server()
-	for x in 20:
-		map.append([])
-		for y in 20:
-			map[x].append(rand_range(0, 8))
+	map_data = get_node("MapLoader").load_map(current_map)
 
 
 func start_server() -> void:
@@ -26,8 +43,14 @@ func start_server() -> void:
 
 func on_peer_connected(player_id) -> void:
 	print(str(player_id) + " has connected. (" + network.get_peer_address(player_id) + ")")
-	rpc_id(0, "spawn_new_player", player_id)
-	rpc_id(player_id, "load_map", "asdf", map)
+	for player in player_data.keys():
+		rpc_id(player_id, "spawn_player", player, player_data[player])
+	player_data[player_id] = {"team": -1, "class": -1, "spawnpoint": Vector2()}
+	assign_team(player_id)
+	assign_class(player_id)
+	assign_spawnpoint(player_id)
+	rpc_id(0, "spawn_player", player_id, player_data[player_id])
+	rpc_id(player_id, "load_map", current_map.get_basename(), map_data)
 
 
 func on_peer_disconnected(player_id) -> void:
@@ -59,3 +82,17 @@ remote func fetch_server_time(client_time) -> void:
 remote func determine_latency(client_time) -> void:
 	var player_id = get_tree().get_rpc_sender_id()
 	rpc_id(player_id, "return_latency", client_time)
+
+
+func assign_team(player_id: int) -> void:
+	player_data[player_id]["team"] = Teams.RED
+
+
+func assign_class(player_id: int) -> void:
+	player_data[player_id]["class"] = GameClasses.KNIGHT
+
+
+func assign_spawnpoint(player_id: int) -> void:
+	var team = player_data[player_id]["team"]
+	var spawnpoint = spawnpoints[team]
+	player_data[player_id]["spawnpoint"] = spawnpoint

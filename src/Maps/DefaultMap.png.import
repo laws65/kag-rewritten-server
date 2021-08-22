@@ -1,0 +1,13 @@
+[remap]
+
+importer="image"
+type="Image"
+path="res://.import/DefaultMap.png-c0a8450ce72f2c457e086e74b9439ae0.image"
+
+[deps]
+
+source_file="res://src/Maps/DefaultMap.png"
+dest_files=[ "res://.import/DefaultMap.png-c0a8450ce72f2c457e086e74b9439ae0.image" ]
+
+[params]
+
