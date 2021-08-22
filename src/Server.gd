@@ -5,9 +5,13 @@ var port = 28574
 var max_players = 20
 var player_state_collection = {}
 
-
+var map = []
 func _ready() -> void:
 	start_server()
+	for x in 20:
+		map.append([])
+		for y in 20:
+			map[x].append(rand_range(0, 8))
 
 
 func start_server() -> void:
@@ -22,8 +26,8 @@ func start_server() -> void:
 
 func on_peer_connected(player_id) -> void:
 	print(str(player_id) + " has connected. (" + network.get_peer_address(player_id) + ")")
-	var team = calculate_new_player_team(player_id)
-	rpc_id(0, "spawn_new_player", player_id, team)
+	rpc_id(0, "spawn_new_player", player_id)
+	rpc_id(player_id, "load_map", "asdf", map)
 
 
 func on_peer_disconnected(player_id) -> void:
@@ -32,10 +36,6 @@ func on_peer_disconnected(player_id) -> void:
 #		get_node(str(player_id)).queue_free()
 	player_state_collection.erase(player_id)
 	rpc_id(0, "despawn_player", player_id)
-
-
-func calculate_new_player_team(player_id) -> int:
-	return 1
 
 
 remote func recieve_player_state(player_state) -> void:
